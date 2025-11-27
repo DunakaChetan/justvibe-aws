@@ -1,7 +1,7 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-ARG API_BASE_URL=http://44.211.23.180
+ARG API_BASE_URL=http://44.211.23.180:8080
 
 RUN apk add --no-cache git \
   && git clone https://github.com/DunakaChetan/justvibe-docker.git .
