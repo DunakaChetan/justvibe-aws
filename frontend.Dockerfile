@@ -1,11 +1,14 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+ARG API_BASE_URL=http://44.211.23.180
+
 RUN apk add --no-cache git \
   && git clone https://github.com/DunakaChetan/justvibe-docker.git .
 
 RUN npm install
-RUN npm run build
+RUN printf "VITE_API_BASE_URL=%s\n" "$API_BASE_URL" > .env.production \
+  && npm run build
 
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
