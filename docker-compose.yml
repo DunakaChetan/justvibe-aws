@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    container_name: justvibe-backend
+    restart: always
+    environment:
+      SUPABASE_URL: https://qofyhxnnmlovnyvpuxex.supabase.co
+      SUPABASE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvZnloeG5ubWxvdm55dnB1eGV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM1MzIzMjQsImV4cCI6MjA3OTEwODMyNH0._Q95jNYHoDTdv_C8ZY2TvQRXIt5scNC9ovcSvp08T0g
+      SUPABASE_SERVICE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvZnloeG5ubWxvdm55dnB1eGV4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzUzMjMyNCwiZXhwIjoyMDc5MTA4MzI0fQ.-rsFrXR6uRIDpE0oS4dBq3Z4oZqe1y2aaem-rvzUrOg
+      JWT_SECRET: ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890IJKLMNOPQRSTU
+      NODE_ENV: production
+      PORT: 8080
+      CORS_ORIGIN: http://localhost
+    ports:
+      - "8080:8080"
+    networks:
+      - justvibe-net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    container_name: justvibe-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - justvibe-net
+
+networks:
+  justvibe-net:
+    driver: bridge
+

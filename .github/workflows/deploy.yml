@@ -1,0 +1,52 @@
+name: Deploy JustVibe to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout deploy repo
+        uses: actions/checkout@v4
+
+      - name: Prepare deployment package
+        run: |
+          tar -czf aws-bundle.tar.gz AWS
+
+      - name: Configure SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Upload bundle
+        run: |
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no aws-bundle.tar.gz \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/tmp/aws-bundle.tar.gz
+
+      - name: Deploy on EC2
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} <<'EOF'
+              set -e
+              DEPLOY_ROOT="$HOME/justvibe-aws"
+              mkdir -p "$DEPLOY_ROOT"
+              tar -xzf /tmp/aws-bundle.tar.gz -C "$DEPLOY_ROOT"
+              rm /tmp/aws-bundle.tar.gz
+              cd "$DEPLOY_ROOT/AWS"
+              chmod +x deploy.sh
+              ./deploy.sh
+          EOF
+
+      - name: Cleanup local artifacts
+        if: always()
+        run: rm -f aws-bundle.tar.gz ~/.ssh/deploy_key
+
