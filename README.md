@@ -35,16 +35,31 @@ If the repos are private, add PAT-based auth to the `git clone` commands.
    - `EC2_USER` = `ubuntu` (or your user)
    - `EC2_SSH_KEY` = contents of the private key (`justvibe-aws`)
 
-## 5. Prepare the EC2 instance
+## 5. Prepare the EC2 instance (no Docker Hub login needed)
 1. Launch Ubuntu 22.04 (t3.small+ recommended).
 2. Security group must allow inbound 22, 80, 8080.
-3. SSH in and run:
+3. SSH in and install Docker from the official repository:
    ```bash
    sudo apt-get update
-   sudo apt-get install -y docker.io docker-compose-plugin git
+   sudo apt-get install -y ca-certificates curl gnupg git
+   sudo install -m 0755 -d /etc/apt/keyrings
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/keyrings/docker.asc >/dev/null
+   echo \
+     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
+     https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
+     sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+   sudo apt-get update
+   sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
    sudo usermod -aG docker ubuntu
-   # log out/in so docker permissions apply
+   exit
    ```
+4. Reconnect via SSH and verify the install (no Docker Hub login required):
+   ```bash
+   docker --version
+   docker compose version
+   docker buildx version
+   ```
+   These commands confirm the plugins are available through the `docker` CLI. Because the images build from your public GitHub repos, you never need to `docker login` on this server.
 
 ## 6. Manual test deploy (optional)
 1. `ssh ubuntu@<EC2_PUBLIC_IP>`
