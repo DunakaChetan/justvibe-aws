@@ -17,7 +17,15 @@ jobs:
 
       - name: Prepare deployment package
         run: |
-          tar -czf aws-bundle.tar.gz AWS
+          set -e
+          if [ -d AWS ]; then
+            tar -czf aws-bundle.tar.gz AWS
+          else
+            mkdir -p bundle/AWS
+            rsync -a --exclude '.git/' --exclude 'bundle/' ./ bundle/AWS/
+            tar -czf aws-bundle.tar.gz -C bundle AWS
+            rm -rf bundle
+          fi
 
       - name: Configure SSH
         shell: bash
