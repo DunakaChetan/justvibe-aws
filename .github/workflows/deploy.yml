@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - master
+  repository_dispatch:
+    types:
+      - frontend-updated
+      - backend-updated
   workflow_dispatch:
 
 jobs:
@@ -26,6 +30,12 @@ jobs:
             tar -czf aws-bundle.tar.gz -C bundle AWS
             rm -rf bundle
           fi
+
+      - name: Print trigger context
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "Event type: ${{ github.event.action }}"
+          echo "Payload: ${{ toJson(github.event.client_payload) }}"
 
       - name: Configure SSH
         shell: bash
