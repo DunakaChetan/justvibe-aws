@@ -14,7 +14,7 @@ services:
       JWT_SECRET: ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890IJKLMNOPQRSTU
       NODE_ENV: production
       PORT: 8080
-      CORS_ORIGIN: http://44.211.23.180
+      CORS_ORIGIN: http://3.237.21.254
     ports:
       - "8080:8080"
     networks:
